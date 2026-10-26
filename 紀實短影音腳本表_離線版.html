@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>紀實短影音腳本表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: beach-blue header band with four swatches, one fill-in column of sections, sticky timecode bar. */
+:root{
+  --bg:#cae8f3; --surface:#ffffff; --ink:#0f2236; --muted:#566b80; --line:#cddde9; --field:#f7fbfe;
+  --sky:#1aa1ee; --sky-ink:#ffffff; --sky-soft:#e1f2fd; --deep:#0b5fae;
+  --coral:#e8345a; --coral-soft:#fde6eb; --sun:#f2cf2e; --sun-soft:#fdf6d3; --palm:#249a62; --palm-soft:#def3e8;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0a1726; --surface:#102236; --ink:#e4eef7; --muted:#93a9be; --line:#22394f; --field:#0c1c2d;
+  --sky:#3cb2f3; --sky-ink:#06121e; --sky-soft:#12324d; --deep:#7cc7f5;
+  --coral:#ff6a86; --coral-soft:#3b1a25; --sun:#f5d64c; --sun-soft:#352e12; --palm:#4cc58a; --palm-soft:#143425; color-scheme:dark}}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.65}
+
+.hero{background:var(--sky);color:var(--sky-ink)}
+.hero-in,.wrap{max-width:880px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.hero-in{padding-block:30px 26px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.9}
+h1{font-size:clamp(28px,6vw,40px);font-weight:900;line-height:1.15;margin:0;text-wrap:balance}
+.lede{margin:0;max-width:60ch;opacity:.95}
+.swatch{display:grid;grid-template-columns:repeat(4,1fr);height:10px}
+.swatch i:nth-child(1){background:var(--palm)} .swatch i:nth-child(2){background:#0b5fae}
+.swatch i:nth-child(3){background:var(--coral)} .swatch i:nth-child(4){background:var(--sun)}
+
+.wrap{padding-block:22px 80px;display:grid;gap:20px}
+.notice{background:var(--surface);border:2px solid var(--coral);border-radius:14px;padding:14px 16px;display:grid;gap:6px}
+.notice strong{color:var(--coral);font-size:16px}
+.notice p{margin:0;font-size:14px}
+.howto{margin:0;padding:14px 16px 14px 34px;background:var(--sun-soft);border-radius:12px;display:grid;gap:4px}
+.howto li::marker{color:var(--coral);font-weight:700}
+.req{color:var(--coral);font-weight:900}
+.tag{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:1px 9px;vertical-align:middle;letter-spacing:.02em}
+.tag.now{background:var(--coral-soft);color:var(--coral)}
+.tag.later{background:var(--palm-soft);color:var(--palm)}
+.tag.any{background:var(--sky-soft);color:var(--deep)}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;box-shadow:0 8px 20px -16px rgba(0,30,60,.6)}
+.tc{font-family:var(--f-mono);font-weight:600;font-size:20px;font-variant-numeric:tabular-nums}
+.tc small{font-size:13px;color:var(--muted);font-weight:500}
+.pill{font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px}
+.pill.ok{background:var(--palm-soft);color:var(--palm)}
+.pill.warn{background:var(--coral-soft);color:var(--coral)}
+.pill.info{background:var(--sky-soft);color:var(--deep)}
+.bar .spacer{flex:1}
+.saved{font-size:12px;color:var(--muted)}
+
+section{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:grid;gap:16px}
+section > h2{margin:0;font-size:19px;font-weight:900;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+section > h2 .no{font-family:var(--f-mono);font-size:12px;font-weight:600;color:var(--sky-ink);background:var(--sky);border-radius:6px;padding:1px 7px}
+.hint{margin:-8px 0 0;color:var(--muted);font-size:13.5px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px}
+.full{grid-column:1/-1}
+.field{display:grid;gap:5px;min-width:0;align-content:start}
+.lrow{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+label,.lbl{font-size:13.5px;font-weight:700}
+.sub{font-weight:400;color:var(--muted);margin-left:4px}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+textarea{min-height:70px;resize:vertical}
+input::placeholder,textarea::placeholder{color:var(--muted);opacity:.75}
+input:focus,select:focus,textarea:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--sky);outline-offset:1px}
+.invalid{border-color:var(--coral)!important;background:var(--coral-soft)!important}
+.err{font-size:13px;color:var(--coral);font-weight:700}
+.checks{display:flex;flex-wrap:wrap;gap:8px}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;background:var(--field);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.chk:has(input:checked){background:var(--sky-soft);border-color:var(--sky)}
+.chk input{accent-color:var(--sky);margin:0}
+
+.items{display:grid;gap:12px}
+.item{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.item-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:9px 12px;background:var(--sky-soft)}
+.item-no{font-family:var(--f-mono);font-weight:600;font-size:14px}
+.item-tc{font-family:var(--f-mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.item-head .spacer{flex:1}
+.item-body{padding:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 14px}
+.item-body .w2{grid-column:span 2}
+.item-body .w4{grid-column:1/-1}
+.people .item-head{background:var(--palm-soft)}
+.segs .item-head{background:var(--sun-soft)}
+.est{font-size:12.5px;color:var(--muted)}
+.est.over{color:var(--coral);font-weight:700}
+details.more{border-top:1px dashed var(--line)}
+details.more > summary{cursor:pointer;padding:10px 14px;font-size:13.5px;font-weight:700;color:var(--deep);list-style:none}
+details.more > summary::-webkit-details-marker{display:none}
+details.more > summary::before{content:"＋ ";}
+details.more[open] > summary::before{content:"－ ";}
+details.more .item-body{padding-top:0}
+
+details.example{border:2px dashed var(--sun);border-radius:12px;background:var(--sun-soft)}
+details.example > summary{cursor:pointer;padding:10px 14px;font-weight:700}
+.ex-in{padding:0 14px 14px;display:grid;gap:10px}
+.ex-note{margin:0;font-size:13px;color:var(--muted)}
+.ex-card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:2px;font-size:14px}
+.ex-card b{font-family:var(--f-mono);font-size:13px}
+.ex-card span{color:var(--muted);font-weight:700;margin-right:4px}
+
+button{font:inherit;font-size:14px;font-weight:700;border-radius:8px;padding:8px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+button:disabled{opacity:.45;cursor:default}
+button.primary{background:var(--coral);color:#fff;border-color:var(--coral)}
+button.small{font-size:12.5px;padding:4px 9px;font-weight:500}
+button.tbd{font-size:12px;padding:1px 9px;font-weight:500;border-radius:999px;color:var(--muted)}
+button.danger{color:var(--coral)}
+button.armed{background:var(--coral);color:#fff;border-color:var(--coral)}
+button.link{border:none;background:none;padding:4px 0;font-size:13px;font-weight:500;color:var(--muted);text-decoration:underline}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.add{width:100%;border-style:dashed;color:var(--deep)}
+.status{font-size:14px;font-weight:700}
+.status.ok{color:var(--palm)} .status.bad{color:var(--coral)}
+.parts{display:grid;gap:8px;background:var(--sun-soft);border-radius:10px;padding:12px}
+.parts p{margin:0;font-size:13.5px}
+#fallback textarea{min-height:220px;font-family:var(--f-mono);font-size:12.5px}
+.leader{border-top:1px dashed var(--line);padding-top:10px}
+.empty{color:var(--muted);font-size:14px;padding:14px;border:1px dashed var(--line);border-radius:12px;text-align:center}
+
+@media (max-width:640px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .item-body{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .item-body .w2{grid-column:1/-1}
+  section{padding:16px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head><body>
+
+<div class="hero"><div class="hero-in">
+  <div class="eyebrow">在地走訪 · 30–60 秒短影音</div>
+  <h1>紀實短影音腳本表</h1>
+  <p class="lede">訪談、地點介紹、導覽或體驗紀錄都可以。這份表只統一「要交代哪些事」，內容和拍法由你們自由發揮。</p>
+</div><div class="swatch" aria-hidden="true"><i></i><i></i><i></i><i></i></div></div>
+
+<div class="wrap">
+  <div class="notice">
+    <strong>請用 Safari 或 Chrome 開啟這個檔案</strong>
+    <p>不要直接在 LINE 裡填，草稿可能會不見、複製也可能沒反應。在 LINE 點開檔案後，選「分享」或「用其他 App 開啟」，再選 Safari 或 Chrome。</p>
+    <p>草稿只存在「這個檔案＋這個瀏覽器」。如果組長之後傳來新版檔案，請先在舊檔按「複製整份腳本」留底，再開新檔。</p>
+  </div>
+
+  <ol class="howto">
+    <li><b>每個人各自填一份</b>，填完交給組長，組長會再合併。</li>
+    <li>每一區的標籤告訴你什麼時候填：<span class="tag now">現在填</span> 先交，<span class="tag later">場勘後補</span> 現在可以空著或寫想法。</li>
+    <li>標 <span class="req">*</span> 的是必填。還沒確定的欄位可以按「待定」。</li>
+    <li>填完按最下方「複製整份腳本」，貼到 LINE 傳給組長。</li>
+  </ol>
+
+  <div class="bar" aria-live="polite">
+    <span class="tc" id="barTotal">0:00 <small>/ 目標未填</small></span>
+    <span class="pill info" id="barPill">尚未填鏡頭秒數</span>
+    <span class="spacer"></span>
+    <span class="saved" id="savedNote">尚未儲存</span>
+  </div>
+
+  <section data-title="基本資訊">
+    <h2><span class="no">01</span>基本資訊 <span class="tag now">現在填</span></h2>
+    <div class="grid">
+      <div class="field"><label for="b_group">組別 <span class="req">*</span></label><input type="text" id="b_group" placeholder="例：第 3 組"></div>
+      <div class="field"><label for="b_author">填寫人 <span class="req">*</span></label><input type="text" id="b_author" placeholder="你的名字"></div>
+      <div class="field full"><label for="b_title">影片標題 <span class="sub">暫定也可以</span></label><input type="text" id="b_title" data-tbd></div>
+      <div class="field full"><label for="b_team">組員與分工 <span class="sub">誰負責拍、收音、訪問、剪接</span></label><textarea id="b_team" placeholder="例：王小明－攝影｜李小華－收音｜…"></textarea></div>
+      <div class="field full"><span class="lbl">影片類型 <span class="sub">可複選</span></span>
+        <div class="checks" data-group="影片類型">
+          <label class="chk"><input type="checkbox" id="t_1" value="人物訪談">人物訪談</label>
+          <label class="chk"><input type="checkbox" id="t_2" value="地點介紹">地點介紹</label>
+          <label class="chk"><input type="checkbox" id="t_3" value="主持人導覽">主持人導覽</label>
+          <label class="chk"><input type="checkbox" id="t_4" value="體驗紀錄">體驗紀錄</label>
+          <label class="chk"><input type="checkbox" id="t_5" value="知識解說">知識解說</label>
+        </div>
+        <input type="text" id="t_other" aria-label="其他類型" placeholder="其他類型或混搭方式（選填）">
+      </div>
+      <div class="field"><label for="b_length">目標長度（秒） <span class="sub">建議 30–60</span></label>
+        <input type="number" id="b_length" min="1" step="1" inputmode="numeric" placeholder="例：45"></div>
+      <div class="field"><label for="b_ratio">畫面比例 <span class="sub">直的或橫的</span></label>
+        <select id="b_ratio"><option>直式 9:16</option><option>橫式 16:9</option><option>方形 1:1</option><option>待討論</option></select></div>
+      <div class="field full"><label for="b_core">一句話核心訊息 <span class="sub">觀眾看完要記得什麼</span></label><input type="text" id="b_core"></div>
+      <div class="field"><label for="b_audience">目標觀眾 <span class="sub">拍給誰看</span></label><input type="text" id="b_audience"></div>
+      <div class="field"><label for="b_tone">風格調性 <span class="sub">整體感覺</span></label><input type="text" id="b_tone" placeholder="例：溫暖、輕快、帶點幽默"></div>
+      <div class="field full"><label for="b_ref">參考影片連結 <span class="req">*</span> <span class="sub">至少一支，多支請換行</span></label>
+        <textarea id="b_ref" placeholder="https://…"></textarea>
+        <span class="err" id="b_ref_err" hidden></span></div>
+      <div class="field full"><label for="b_refwhy">參考它的哪個地方 <span class="req">*</span></label><input type="text" id="b_refwhy" placeholder="例：開頭三秒的節奏、字幕風格、跟拍方式"></div>
+    </div>
+  </section>
+
+  <section data-title="段落結構">
+    <h2><span class="no">02</span>段落結構 <span class="tag now">現在填</span></h2>
+    <p class="hint">段落名稱、數量和秒數都可以自己改。預設的三段只是起點。</p>
+    <div class="items segs" id="segs"></div>
+    <button type="button" class="add" data-add="segs">＋ 新增段落</button>
+  </section>
+
+  <section data-title="出場人物與服裝">
+    <h2><span class="no">03</span>出場人物與服裝 <span class="tag now">現在填方向</span></h2>
+    <p class="hint">受訪者、主持人、旁白、店家或路人都可以列。人選還沒定就按「待定」。沒有人物入鏡的影片可以刪掉全部卡片。</p>
+    <div class="items people" id="people"></div>
+    <button type="button" class="add" data-add="people">＋ 新增人物</button>
+    <div class="grid">
+      <div class="field full"><label for="c_crew">拍攝組員服裝 <span class="sub">不入鏡的人</span></label><input type="text" id="c_crew" placeholder="例：深色素色、防滑鞋、做好防曬"></div>
+      <div class="field full"><label for="c_talk">訪談題目／旁白／台詞方向 <span class="sub">依影片類型自由寫</span></label><textarea id="c_talk" placeholder="訪談型可列 3–5 題；介紹型可寫旁白重點；導覽型可寫主持人串場方向"></textarea></div>
+    </div>
+    <p class="hint" style="margin:0">服裝提醒：避開細條紋、細格紋（畫面會閃）、大面積 logo，以及和背景同色的衣服。<br>隱私提醒：腳本會貼到群組，請不要寫受訪者的電話或地址。</p>
+  </section>
+
+  <section data-title="拍攝地點與場勘">
+    <h2><span class="no">04</span>拍攝地點與場勘 <span class="tag later">場勘後補</span></h2>
+    <p class="hint">候選地點和想拍的畫面現在就可以寫，其他場勘回來再補。</p>
+    <div class="grid">
+      <div class="field"><label for="l_name">地點名稱 <span class="sub">可先寫候選</span></label><input type="text" id="l_name" data-tbd></div>
+      <div class="field"><label for="l_state">場勘狀態</label>
+        <select id="l_state"><option>尚未場勘</option><option>已約好場勘時間</option><option>已完成場勘</option></select></div>
+      <div class="field"><label for="l_permit">場地拍攝許可</label>
+        <select id="l_permit"><option>尚未詢問</option><option>已詢問，等回覆</option><option>已口頭同意</option><option>已取得書面同意</option><option>不需要（公共空間）</option></select></div>
+      <div class="field"><label for="l_contact">場地聯絡窗口 <span class="sub">哪位組員負責</span></label><input type="text" id="l_contact" data-tbd></div>
+      <div class="field full"><label for="l_expect">場地期望 <span class="sub">想要的氛圍、背景、必拍畫面</span></label><textarea id="l_expect"></textarea></div>
+      <div class="field full"><span class="lbl">場勘時要確認 <span class="sub">確認完再打勾</span></span>
+        <div class="checks" data-group="場勘已確認">
+          <label class="chk"><input type="checkbox" id="l_k1" value="安全與可進入範圍">安全與可進入範圍</label>
+          <label class="chk"><input type="checkbox" id="l_k2" value="收音環境（風、機器噪音）">收音環境（風、機器噪音）</label>
+          <label class="chk"><input type="checkbox" id="l_k3" value="光線與最佳時段">光線與最佳時段</label>
+          <label class="chk"><input type="checkbox" id="l_k4" value="現場作業或活動時間">現場作業或活動時間</label>
+          <label class="chk"><input type="checkbox" id="l_k6" value="交通、停車、充電">交通、停車、充電</label>
+        </div></div>
+      <div class="field full"><label for="l_notes">場勘紀錄</label><textarea id="l_notes"></textarea></div>
+      <div class="field"><label for="l_date">預計拍攝日期</label><input type="text" id="l_date" data-tbd placeholder="例：10/25（六）"></div>
+      <div class="field"><label for="l_slot">預計時段</label><input type="text" id="l_slot" data-tbd placeholder="例：06:30–09:00"></div>
+      <div class="field full"><label for="l_backup">雨備 <span class="sub">下雨或借不到時的備案</span></label><input type="text" id="l_backup" data-tbd></div>
+    </div>
+  </section>
+
+  <section data-title="器材與後製">
+    <h2><span class="no">05</span>器材與後製 <span class="tag later">場勘後補</span></h2>
+    <div class="grid">
+      <div class="field full"><span class="lbl">器材 <span class="sub">會帶的打勾</span></span>
+        <div class="checks" data-group="器材">
+          <label class="chk"><input type="checkbox" id="e_1" value="手機">手機</label>
+          <label class="chk"><input type="checkbox" id="e_2" value="相機">相機</label>
+          <label class="chk"><input type="checkbox" id="e_3" value="腳架">腳架</label>
+          <label class="chk"><input type="checkbox" id="e_4" value="穩定器">穩定器</label>
+          <label class="chk"><input type="checkbox" id="e_5" value="麥克風">麥克風</label>
+          <label class="chk"><input type="checkbox" id="e_6" value="補光／反光板">補光／反光板</label>
+          <label class="chk"><input type="checkbox" id="e_7" value="行動電源">行動電源</label>
+          <label class="chk"><input type="checkbox" id="e_8" value="空拍機（需確認法規）">空拍機（需確認法規）</label>
+        </div>
+        <input type="text" id="e_other" aria-label="其他器材" placeholder="其他器材（選填）"></div>
+      <div class="field"><label for="e_music">配樂風格</label><input type="text" id="e_music"></div>
+      <div class="field"><label for="e_sub">字幕樣式</label><input type="text" id="e_sub"></div>
+      <div class="field full"><label for="e_fx">剪輯、特效或調色想法</label><input type="text" id="e_fx"></div>
+    </div>
+  </section>
+
+  <section data-title="分鏡表">
+    <h2><span class="no">06</span>分鏡表 <span class="tag later">場勘後補</span></h2>
+    <p class="hint">一顆鏡頭一張卡，現在可以先寫想法。每張卡只要先填畫面、聲音、秒數；景別、運鏡等細節放在「更多細節」裡，想寫再展開。中文口語約每秒 4 字。</p>
+    <details class="example">
+      <summary>看示範分鏡卡（只是格式參考，不用照著拍）</summary>
+      <div class="ex-in">
+        <p class="ex-note">以安平虱目魚養殖場為例，示範一張卡大概寫到多詳細。</p>
+        <div class="ex-card"><b>鏡 01　0:00–0:03（3 秒）</b>
+          <div><span>畫面</span>清晨魚塭全景，水面有薄霧，打氣機翻起水花</div>
+          <div><span>聲音</span>打氣機的水聲，接輕快吉他前奏</div>
+          <div><span>景別</span>全景　<span>運鏡</span>緩慢往前推</div>
+          <div><span>字幕</span>凌晨五點的安平</div>
+          <div><span>效果</span>一開場就知道這裡是魚塭</div></div>
+        <div class="ex-card"><b>鏡 02　0:03–0:08（5 秒）</b>
+          <div><span>畫面</span>養殖戶的手抓起飼料撒向水面，魚群翻騰</div>
+          <div><span>聲音</span>受訪者原音：「我們家養虱目魚已經三代了。」</div>
+          <div><span>景別</span>特寫手部　<span>運鏡</span>固定</div>
+          <div><span>效果</span>用一個動作帶出人和這片魚塭的關係</div></div>
+      </div>
+    </details>
+    <div class="items" id="shots"></div>
+    <button type="button" class="add" data-add="shots">＋ 新增鏡頭</button>
+  </section>
+
+  <section data-title="其他補充">
+    <h2><span class="no">07</span>其他補充 <span class="tag any">隨時</span></h2>
+    <div class="field"><label for="x_more">還想說明的事</label><textarea id="x_more" placeholder="創意構想、需要組長協助的地方…"></textarea></div>
+  </section>
+
+  <section data-title="交給組長">
+    <h2><span class="no">08</span>交給組長</h2>
+    <ol class="howto" style="background:var(--sky-soft)">
+      <li>按「複製整份腳本」。</li>
+      <li>打開 LINE 群組，貼上後傳給組長。</li>
+      <li>之後有修改，重新複製再傳一次。最新那一則的開頭會有時間。</li>
+    </ol>
+    <div class="actions">
+      <button type="button" class="primary" id="copyAll">複製整份腳本</button>
+      <button type="button" class="danger" id="clearAll">清空，開始新的一份</button>
+    </div>
+    <span class="status" id="status" role="status"></span>
+    <div class="parts" id="parts" hidden>
+      <p>內容比較長，LINE 一則訊息可能放不下，已幫你分成幾段。請依序複製、分別貼上。</p>
+      <div class="actions" id="partBtns"></div>
+    </div>
+    <div class="field" id="fallback" hidden>
+      <label for="fallbackText">無法自動複製，請長按下方文字選「全選」再複製</label>
+      <textarea id="fallbackText" readonly></textarea>
+    </div>
+    <div class="leader"><button type="button" class="link" id="copyTsv">組長整理用：複製分鏡表（可貼到 Google 試算表或 Excel）</button></div>
+  </section>
+</div>
+
+<datalist id="dl-role"><option value="受訪者"><option value="主持人"><option value="旁白（只出聲）"><option value="店家／工作人員"><option value="路人"><option value="組員入鏡"></datalist>
+<datalist id="dl-type"><option value="人物說話"><option value="現場畫面"><option value="旁白配畫面"><option value="主持人出鏡"><option value="字卡／動畫"><option value="體驗過程"></datalist>
+<datalist id="dl-size"><option value="遠景"><option value="全景"><option value="中景"><option value="近景"><option value="特寫"></datalist>
+<datalist id="dl-angle"><option value="平視"><option value="俯拍（由上往下）"><option value="仰拍（由下往上）"><option value="主觀視角"><option value="空拍"></datalist>
+<datalist id="dl-move"><option value="固定"><option value="往前推"><option value="往後拉"><option value="左右搖"><option value="平移"><option value="跟拍"><option value="手持"><option value="縮時"><option value="慢動作"></datalist>
+<datalist id="dl-trans"><option value="直接切"><option value="淡入淡出"><option value="甩鏡"><option value="黑場"><option value="跳剪"></datalist>
+<datalist id="dl-seg"></datalist>
+
+<script>
+(function(){
+const KEY='doc-short-script-offline-v2';
+const LIMIT=4500;
+const PERMIT=['尚未詢問','已詢問，等回覆','已口頭同意','已取得書面同意','不需要'];
+/* field: [key,label,sub,kind,datalist|options,cls,placeholder,flags]  flags: 'tbd' | 'more' */
+const SCHEMA={
+  segs:{label:'段落',fields:[
+    ['name','段落名稱','','text','','w2','例：開頭'],['sec','預估秒數','','number','','',''],['_','','','spacer','','',''],
+    ['content','這段要做什麼','','textarea','','w4','']],
+    init:()=>[{name:'開頭',sec:'3',content:''},{name:'主體',sec:'45',content:''},{name:'結尾',sec:'12',content:''}]},
+  people:{label:'人物',fields:[
+    ['role','角色','','text','dl-role','',''],['who','由誰擔任','','text','','','','tbd'],
+    ['contact','聯絡窗口','哪位組員負責','text','','',''],['consent','肖像同意','','select',PERMIT,'',''],
+    ['wear','服裝','','text','','w2','例：平常工作服、統一淺色上衣'],['note','備註','','text','','w2','例：只拍手部、需提前一週約']],
+    init:()=>[{}]},
+  shots:{label:'鏡',fields:[
+    ['frame','畫面內容','觀眾會看到什麼','textarea','','w4','例：清晨魚塭全景，水面有薄霧'],
+    ['line','聲音內容','台詞／旁白／受訪原音／現場聲','textarea','','w4',''],
+    ['sec','秒數','','number','','',''],
+    ['type','鏡頭類型','','text','dl-type','','','more'],['seg','所屬段落','','text','dl-seg','','','more'],
+    ['size','景別','拍多近：全身／半身／臉','text','dl-size','w2','','more'],['angle','角度','從哪個高度拍','text','dl-angle','w2','','more'],
+    ['move','運鏡','鏡頭怎麼動','text','dl-move','w2','','more'],['trans','轉場','和下一顆怎麼接','text','dl-trans','w2','','more'],
+    ['act','人物動作','','text','','w4','','more'],
+    ['caption','字幕／畫面文字','','text','','w2','','more'],['sound','音效／配樂','','text','','w2','','more'],
+    ['effect','想要的效果','想讓觀眾感受到什麼','text','','w2','','more'],['note','備註','','text','','w2','','more']],
+    init:()=>[{},{},{}]}
+};
+let lists={segs:SCHEMA.segs.init(),people:SCHEMA.people.init(),shots:SCHEMA.shots.init()};
+const openMore=new WeakSet();
+const $=id=>document.getElementById(id);
+const fmt=s=>Math.floor(s/60)+':'+String(Math.round(s%60)).padStart(2,'0');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const filled=v=>String(v??'').trim()!=='';
+
+function fieldHtml(name,i,it,f){
+  const [k,lab,sub,kind,dl,cls,ph,flag]=f;
+  if(kind==='spacer')return '<div class="field"></div>';
+  const id=`${name}-${i}-${k}`,attrs=`id="${id}" data-l="${name}" data-i="${i}" data-k="${k}"`;
+  let ctl;
+  if(kind==='textarea')ctl=`<textarea ${attrs} placeholder="${esc(ph)}">${esc(it[k])}</textarea>`;
+  else if(kind==='select')ctl=`<select ${attrs}>${dl.map(o=>`<option${o===it[k]?' selected':''}>${esc(o)}</option>`).join('')}</select>`;
+  else ctl=`<input type="${kind}" ${attrs} value="${esc(it[k])}" placeholder="${esc(ph)}"${dl?` list="${dl}"`:''}${kind==='number'?' min="0" step="0.5" inputmode="decimal"':''}>`;
+  const lbl=`<label for="${id}">${lab}${sub?` <span class="sub">${sub}</span>`:''}</label>`;
+  const head=flag==='tbd'?`<div class="lrow">${lbl}<button type="button" class="tbd" data-tbd="${id}">待定</button></div>`:lbl;
+  const extra=(name==='shots'&&k==='line')?`<span class="est" id="est-${i}"></span>`:'';
+  return `<div class="field ${cls}">${head}${ctl}${extra}</div>`;
+}
+function render(name){
+  const box=$(name),sc=SCHEMA[name],arr=lists[name];box.innerHTML='';
+  if(!arr.length)box.innerHTML=`<div class="empty">目前沒有${sc.label}，需要時再新增。</div>`;
+  arr.forEach((it,i)=>{
+    const el=document.createElement('div');el.className='item';
+    const main=sc.fields.filter(f=>f[7]!=='more'),more=sc.fields.filter(f=>f[7]==='more');
+    let html=`<div class="item-head"><span class="item-no">${sc.label} ${pad(i+1)}</span>${name==='shots'?`<span class="item-tc" id="tc-${i}"></span>`:''}<span class="spacer"></span>
+      <button type="button" class="small" data-act="up" data-l="${name}" data-i="${i}" ${i===0?'disabled':''}>上移</button>
+      <button type="button" class="small" data-act="down" data-l="${name}" data-i="${i}" ${i===arr.length-1?'disabled':''}>下移</button>
+      <button type="button" class="small" data-act="dup" data-l="${name}" data-i="${i}">複製</button>
+      <button type="button" class="small danger" data-act="del" data-l="${name}" data-i="${i}">刪除</button></div>
+      <div class="item-body">${main.map(f=>fieldHtml(name,i,it,f)).join('')}</div>`;
+    if(more.length){
+      const nFilled=more.filter(f=>filled(it[f[0]])).length;
+      const open=openMore.has(it)||nFilled>0;
+      html+=`<details class="more" data-i="${i}"${open?' open':''}><summary>更多細節：鏡頭類型、景別、角度、運鏡、字幕…${nFilled?`（已填 ${nFilled} 項）`:''}</summary><div class="item-body">${more.map(f=>fieldHtml(name,i,it,f)).join('')}</div></details>`;
+    }
+    el.innerHTML=html;
+    const d=el.querySelector('details.more');
+    if(d)d.addEventListener('toggle',()=>{d.open?openMore.add(it):openMore.delete(it);});
+    box.appendChild(el);
+  });
+  if(name==='segs')refreshSegList();
+  update();
+}
+function refreshSegList(){$('dl-seg').innerHTML=lists.segs.map(s=>filled(s.name)?`<option value="${esc(s.name)}">`:'').join('');}
+function update(){
+  let t=0;
+  lists.shots.forEach((s,i)=>{
+    const sec=parseFloat(s.sec)||0,a=t;t+=sec;
+    const tc=$('tc-'+i);if(tc)tc.textContent=sec?`${fmt(a)}–${fmt(t)}（${sec} 秒）`:'未填秒數';
+    const est=$('est-'+i);if(est){const n=(s.line||'').replace(/\s/g,'').length,need=Math.ceil(n/4),over=sec&&need>sec;
+      est.textContent=n?`${n} 字，約需 ${need} 秒${over?'，比這顆鏡頭長':''}`:'';est.className='est'+(over?' over':'');}
+  });
+  const target=parseFloat($('b_length').value)||0;
+  $('barTotal').innerHTML=`${fmt(t)} <small>/ ${target?'目標 '+fmt(target):'目標未填'}</small>`;
+  const p=$('barPill'),r=x=>Math.round(x*10)/10;
+  if(!t){p.className='pill info';p.textContent='尚未填鏡頭秒數';}
+  else if(!target){p.className='pill info';p.textContent='先在基本資訊填目標長度';}
+  else if(t>target+3){p.className='pill warn';p.textContent=`超過 ${r(t-target)} 秒`;}
+  else if(t<target-3){p.className=t<30?'pill warn':'pill info';p.textContent=`離目標還差 ${r(target-t)} 秒`;}
+  else{p.className='pill ok';p.textContent='長度剛好';}
+}
+
+/* 靜態欄位加「待定」按鈕 */
+document.querySelectorAll('[data-tbd]').forEach(el=>{
+  if(el.tagName==='BUTTON')return;
+  const lab=document.querySelector(`label[for="${el.id}"]`);if(!lab)return;
+  const row=document.createElement('div');row.className='lrow';lab.replaceWith(row);row.appendChild(lab);
+  const b=document.createElement('button');b.type='button';b.className='tbd';b.dataset.tbd=el.id;b.textContent='待定';row.appendChild(b);
+});
+
+const staticFields=()=>[...document.querySelectorAll('.wrap section input, .wrap section select, .wrap section textarea')].filter(el=>el.id&&!el.dataset.l&&el.id!=='fallbackText');
+function collect(){const f={};staticFields().forEach(el=>{f[el.id]=el.type==='checkbox'?el.checked:el.value;});return {f,lists};}
+function apply(d){
+  staticFields().forEach(el=>{
+    if(d.f&&el.id in d.f){if(el.type==='checkbox')el.checked=!!d.f[el.id];else el.value=d.f[el.id];}
+    else{if(el.type==='checkbox')el.checked=false;else if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';}
+  });
+  const L=d.lists||{};
+  ['segs','people','shots'].forEach(n=>{lists[n]=Array.isArray(L[n])?L[n].map(x=>Object.assign({},x)):SCHEMA[n].init();render(n);});
+}
+let saveTimer;
+function save(){clearTimeout(saveTimer);saveTimer=setTimeout(()=>{
+  try{localStorage.setItem(KEY,JSON.stringify(collect()));const d=new Date();$('savedNote').textContent=`已暫存 ${d.getHours()}:${pad(d.getMinutes())}`;}
+  catch(e){$('savedNote').textContent='這個瀏覽器無法暫存，請改用 Safari 或 Chrome';}
+},400);}
+
+document.addEventListener('input',e=>{
+  const el=e.target;
+  if(el.dataset&&el.dataset.l){lists[el.dataset.l][+el.dataset.i][el.dataset.k]=el.value;
+    if(el.dataset.l==='segs'&&el.dataset.k==='name')refreshSegList();update();}
+  if(el.id==='b_length')update();
+  if(el.classList&&el.classList.contains('invalid'))el.classList.remove('invalid');
+  save();
+});
+document.addEventListener('change',e=>{if(e.target.tagName==='SELECT'&&e.target.dataset.l){lists[e.target.dataset.l][+e.target.dataset.i][e.target.dataset.k]=e.target.value;save();}});
+document.addEventListener('click',e=>{
+  const tb=e.target.closest('button[data-tbd]');
+  if(tb){const f=$(tb.dataset.tbd);if(f){f.value='待定';f.dispatchEvent(new Event('input',{bubbles:true}));}return;}
+  const add=e.target.closest('[data-add]');
+  if(add){const n=add.dataset.add;lists[n].push({});render(n);save();
+    const f=document.querySelector(`#${n} .item:last-child input, #${n} .item:last-child textarea`);if(f)f.focus();return;}
+  const b=e.target.closest('button[data-act]');if(!b)return;
+  const n=b.dataset.l,i=+b.dataset.i,a=lists[n];
+  if(b.dataset.act==='up'&&i>0)[a[i-1],a[i]]=[a[i],a[i-1]];
+  else if(b.dataset.act==='down'&&i<a.length-1)[a[i+1],a[i]]=[a[i],a[i+1]];
+  else if(b.dataset.act==='dup')a.splice(i+1,0,Object.assign({},a[i]));
+  else if(b.dataset.act==='del'){
+    if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent='確定刪除？';setTimeout(()=>{if(b.isConnected){b.classList.remove('armed');b.textContent='刪除';}},3000);return;}
+    a.splice(i,1);
+  } else return;
+  render(n);save();
+});
+
+/* 輸出 */
+function cleanLabel(node){return node?node.childNodes[0].textContent.trim():'';}
+function buildText(){
+  const now=new Date();
+  const stamp=`${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const out=[`【${$('b_group').value.trim()||'未填組別'}｜${$('b_title').value.trim()||'未定標題'}｜填寫人：${$('b_author').value.trim()||'未填'}｜${stamp}】`,''];
+  document.querySelectorAll('.wrap section[data-title]').forEach(sec=>{
+    const t=sec.dataset.title;if(t==='交給組長')return;
+    const lines=[];
+    const listBox=sec.querySelector('.items');
+    if(listBox){
+      const n=listBox.id,sc=SCHEMA[n];let tt=0,no=0;
+      lists[n].forEach(it=>{
+        const sec2=parseFloat(it.sec)||0,a=tt;tt+=sec2;no++;
+        const body=sc.fields.filter(f=>f[3]!=='spacer'&&!(n==='shots'&&f[0]==='sec')&&filled(it[f[0]]));
+        if(!body.some(f=>f[3]!=='select')&&!sec2)return;
+        let head=`— ${sc.label} ${pad(no)}`;
+        if(n==='shots')head+=sec2?`　${fmt(a)}–${fmt(tt)}（${sec2} 秒）`:'　未填秒數';
+        if(n==='segs'&&sec2)head+=`　約 ${sec2} 秒`;
+        lines.push(head);
+        body.forEach(f=>{if(n==='segs'&&f[0]==='sec')return;lines.push(`　${f[1]}：${String(it[f[0]]).trim()}`);});
+      });
+      if(n==='shots'&&tt)lines.push(`分鏡總長度：${fmt(tt)}`);
+    }
+    sec.querySelectorAll(':scope > .grid > .field, :scope > .field').forEach(f=>{
+      const checks=f.querySelector('.checks');
+      if(checks){const v=[...checks.querySelectorAll('input:checked')].map(c=>c.value);
+        const other=f.querySelector('input[type=text]');if(other&&filled(other.value))v.push(other.value.trim());
+        if(v.length)lines.push(`${checks.dataset.group}：${v.join('、')}`);return;}
+      const ctl=f.querySelector('input,select,textarea');if(!ctl)return;
+      if(ctl.id==='b_group'||ctl.id==='b_author')return;
+      const v=ctl.value.trim();if(!v)return;
+      lines.push(`${cleanLabel(f.querySelector('label,.lbl'))}：${v}`);
+    });
+    if(lines.length){out.push('■ '+t,...lines,'');}
+  });
+  out.push('（完）');
+  return out.join('\n');
+}
+function splitText(text){
+  if(text.length<=LIMIT)return [text];
+  const lines=text.split('\n'),chunks=[];let cur='';
+  lines.forEach(l=>{
+    if(cur&&(cur.length+l.length+1>LIMIT-20||(l.startsWith('■ ')&&cur.length>LIMIT*0.6))){chunks.push(cur);cur='';}
+    cur+=(cur?'\n':'')+l;
+  });
+  if(cur)chunks.push(cur);
+  const head=lines[0];
+  return chunks.map((c,i)=>`（第 ${i+1}/${chunks.length} 段）`+(i?`\n${head}\n`:'')+'\n'+c);
+}
+function buildTsv(){
+  const F=SCHEMA.shots.fields,clean=v=>String(v||'').replace(/[\t\n\r]+/g,' ');
+  let t=0;const rows=[['組別','填寫人','鏡號','開始','結束',...F.map(f=>f[1])].join('\t')];
+  const g=clean($('b_group').value),w=clean($('b_author').value);
+  lists.shots.forEach((s,i)=>{const sec=parseFloat(s.sec)||0,a=t;t+=sec;rows.push([g,w,i+1,fmt(a),fmt(t),...F.map(f=>clean(s[f[0]]))].join('\t'));});
+  return rows.join('\n');
+}
+function setStatus(msg,ok){const s=$('status');s.textContent=msg;s.className='status '+(ok?'ok':'bad');}
+function legacyCopy(text){
+  const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,text.length);let ok=false;try{ok=document.execCommand('copy');}catch(e){}ta.remove();return ok;
+}
+async function copy(text,msg){
+  $('fallback').hidden=true;
+  let ok=false;
+  try{if(navigator.clipboard&&window.isSecureContext!==false){await navigator.clipboard.writeText(text);ok=true;}}catch(e){}
+  if(!ok)ok=legacyCopy(text);
+  if(ok){setStatus(msg,true);return;}
+  $('fallback').hidden=false;const ta=$('fallbackText');ta.value=text;ta.focus();ta.select();setStatus('',true);
+}
+function validate(){
+  let first=null;
+  [['b_group'],['b_author'],['b_refwhy']].forEach(([id])=>{const el=$(id);if(!filled(el.value)){el.classList.add('invalid');first=first||el;}});
+  const r=$('b_ref'),links=r.value.split(/\s+/).filter(Boolean),bad=links.filter(x=>!/^https?:\/\/\S+\.\S+/.test(x)),err=$('b_ref_err');
+  if(!links.length||bad.length){r.classList.add('invalid');err.hidden=false;err.textContent=!links.length?'請至少填一個參考影片連結。':`這些不像網址，請確認：${bad.join('、')}`;first=first||r;}
+  else err.hidden=true;
+  if(first){first.scrollIntoView({block:'center',behavior:'smooth'});first.focus({preventScroll:true});}
+  return !first;
+}
+$('copyAll').addEventListener('click',()=>{
+  $('parts').hidden=true;
+  if(!validate()){setStatus('還有必填欄位沒完成，已標成紅色。',false);return;}
+  const parts=splitText(buildText());
+  if(parts.length===1){copy(parts[0],'已複製，請貼到 LINE 傳給組長。');return;}
+  const box=$('partBtns');box.innerHTML='';
+  parts.forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.className=i?'':'primary';b.textContent=`複製第 ${i+1} 段`;
+    b.addEventListener('click',()=>copy(p,`已複製第 ${i+1}/${parts.length} 段，貼上後再複製下一段。`));box.appendChild(b);});
+  $('parts').hidden=false;setStatus('',true);
+  $('parts').scrollIntoView({block:'nearest',behavior:'smooth'});
+});
+$('copyTsv').addEventListener('click',()=>copy(buildTsv(),'已複製分鏡表，可貼到 Google 試算表或 Excel。'));
+$('clearAll').addEventListener('click',e=>{
+  const b=e.currentTarget;
+  if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent='再按一次確認清空';setTimeout(()=>{b.classList.remove('armed');b.textContent='清空，開始新的一份';},3000);return;}
+  apply({});b.classList.remove('armed');b.textContent='清空，開始新的一份';
+  $('b_ref_err').hidden=true;$('parts').hidden=true;setStatus('已清空。',true);save();
+});
+
+(function load(){
+  let d=null;try{d=JSON.parse(localStorage.getItem(KEY)||'null');}catch(e){}
+  if(d){apply(d);$('savedNote').textContent='已載入上次的草稿';}
+  else ['segs','people','shots'].forEach(render);
+})();
+})();
+</script>
+</body></html>
