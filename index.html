@@ -140,6 +140,11 @@ button.armed{background:var(--coral);color:#fff;border-color:var(--coral)}
 button.link{border:none;background:none;padding:4px 0;font-size:13px;font-weight:500;color:var(--muted);text-decoration:underline}
 button.jump{font-size:13px;padding:4px 10px;background:var(--sun-soft);border-color:var(--sun)}
 .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button.blue{background:var(--sky);color:var(--sky-ink);border-color:var(--sky)}
+.ways{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.way{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:8px;align-content:start}
+.way button{width:100%;font-size:15px;padding:10px}
+.way p{margin:0;font-size:13px;color:var(--muted)}
 .add{width:100%;border-style:dashed;color:var(--deep);background:transparent}
 .status{font-size:14px;font-weight:700}
 .status.ok{color:var(--palm)} .status.bad{color:var(--coral)}
@@ -160,7 +165,10 @@ button.jump{font-size:13px;padding:4px 10px;background:var(--sun-soft);border-co
   .item-body .w1m{grid-column:span 1}
   .dock{display:block;position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--surface);border-top:1px solid var(--line);
     padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
-  .dock button{width:100%;font-size:16px;padding:11px}
+  .dock .row{display:flex;gap:8px}
+  .dock button{flex:1;font-size:16px;padding:11px}
+  .dock button#dockCopy:only-child,.dock #dockShare[hidden]+#dockCopy{background:var(--coral);color:#fff;border-color:var(--coral)}
+  .ways{grid-template-columns:minmax(0,1fr)}
   .wrap{padding-bottom:96px}
   body.typing .dock{display:none}
   body.typing .bar{position:static}
@@ -172,7 +180,7 @@ button.jump{font-size:13px;padding:4px 10px;background:var(--sun-soft);border-co
 
 <div class="hero"><div class="gut">
   <h1>紀實短影音腳本表</h1>
-  <p>每人各填一份，填完按複製貼回 LINE。</p>
+  <p>每人各填一份，填完交給組長。</p>
 </div></div>
 
 <nav class="bar" aria-label="區塊導覽"><div class="gut">
@@ -197,7 +205,7 @@ button.jump{font-size:13px;padding:4px 10px;background:var(--sun-soft);border-co
         <li>只有標「<span class="must-b">必填</span>」的 4 格一定要填，<b>其他都可以空著</b>。</li>
         <li>標「之後再補」的區塊預設收起來，等場勘完再打開填。</li>
         <li>還沒決定的欄位可以按「待定」。</li>
-        <li>填完按「複製整份腳本」，貼到 LINE 傳給組長。</li>
+        <li>填完到最下方，選「分享」「下載 Word 檔」或「複製文字」交給組長。</li>
       </ol>
       <p class="warn">建議用 Safari 或 Chrome 開這個網址。內容會自動存在這支手機的這個瀏覽器，換手機或換瀏覽器就看不到。</p>
     </div>
@@ -335,11 +343,22 @@ button.jump{font-size:13px;padding:4px 10px;background:var(--sun-soft);border-co
 
   <section id="s8" data-title="交給組長">
     <div class="sh"><span class="no">08</span><h2>交給組長</h2></div>
-    <p class="hint">按下複製，打開 LINE 群組貼上。之後有修改，重新複製再傳一次。</p>
-    <div class="actions">
-      <button type="button" class="primary" id="copyAll">複製整份腳本</button>
-      <button type="button" class="danger" id="clearAll">清空重填</button>
+    <p class="hint" id="handHint">選一種方式交給組長，內容都一樣。之後有修改，重新交一次就好。</p>
+    <div class="ways">
+      <div class="way" id="wayShare" hidden>
+        <button type="button" class="primary" id="shareBtn">分享給組長</button>
+        <p>跳出分享選單後選 LINE，再選組長或群組。會傳出一個 Word 檔。</p>
+      </div>
+      <div class="way">
+        <button type="button" class="blue" id="wordBtn">下載 Word 檔</button>
+        <p>存到手機或電腦後，把檔案傳到 LINE 給組長。</p>
+      </div>
+      <div class="way">
+        <button type="button" id="copyAll">複製文字</button>
+        <p>複製後到 LINE 貼上送出。</p>
+      </div>
     </div>
+    <div><button type="button" class="danger small" id="clearAll">清空重填</button></div>
     <span class="status" id="status" role="status"></span>
     <div class="box" id="emptyBox" hidden>
       <p>這幾區還空著，要補的話點一下跳過去（不補也可以交）：</p>
@@ -357,7 +376,7 @@ button.jump{font-size:13px;padding:4px 10px;background:var(--sun-soft);border-co
   </section>
 </div>
 
-<div class="dock"><button type="button" class="primary" id="dockCopy">複製整份腳本</button></div>
+<div class="dock"><div class="row"><button type="button" class="primary" id="dockShare" hidden>分享給組長</button><button type="button" id="dockCopy">複製文字</button></div></div>
 <div class="toast" id="toast" role="status" hidden></div>
 
 <datalist id="dl-role"><option value="受訪者"><option value="主持人"><option value="旁白（只出聲）"><option value="店家／工作人員"><option value="路人"><option value="組員入鏡"></datalist>
@@ -646,6 +665,95 @@ async function doCopy(){
 }
 $('copyAll').addEventListener('click',doCopy);
 $('dockCopy').addEventListener('click',doCopy);
+
+/* ---- Word 檔（自己組 .docx，不需外部套件） ---- */
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+function crc32(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRC[(c^b[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function zip(files){
+  const enc=new TextEncoder(),chunks=[],central=[];let off=0;
+  const d=new Date(),time=(d.getHours()<<11)|(d.getMinutes()<<5)|(d.getSeconds()>>1),date=((d.getFullYear()-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate();
+  files.forEach(([name,str])=>{
+    const nb=enc.encode(name),data=enc.encode(str),crc=crc32(data);
+    const h=new DataView(new ArrayBuffer(30));
+    h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x0800,true);h.setUint16(8,0,true);
+    h.setUint16(10,time,true);h.setUint16(12,date,true);h.setUint32(14,crc,true);h.setUint32(18,data.length,true);h.setUint32(22,data.length,true);
+    h.setUint16(26,nb.length,true);h.setUint16(28,0,true);
+    chunks.push(new Uint8Array(h.buffer),nb,data);
+    const c=new DataView(new ArrayBuffer(46));
+    c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(10,0,true);
+    c.setUint16(12,time,true);c.setUint16(14,date,true);c.setUint32(16,crc,true);c.setUint32(20,data.length,true);c.setUint32(24,data.length,true);
+    c.setUint16(28,nb.length,true);c.setUint32(42,off,true);
+    central.push(new Uint8Array(c.buffer),nb);
+    off+=30+nb.length+data.length;
+  });
+  const cSize=central.reduce((a,b)=>a+b.length,0);
+  const e=new DataView(new ArrayBuffer(22));
+  e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cSize,true);e.setUint32(16,off,true);
+  return new Blob([...chunks,...central,new Uint8Array(e.buffer)],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+const xesc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'');
+function run(text,o={}){
+  const pr=`<w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:eastAsia="Microsoft JhengHei"/>${o.b?'<w:b/>':''}${o.color?`<w:color w:val="${o.color}"/>`:''}<w:sz w:val="${o.sz||22}"/><w:szCs w:val="${o.sz||22}"/></w:rPr>`;
+  return `<w:r>${pr}<w:t xml:space="preserve">${xesc(text)}</w:t></w:r>`;
+}
+function para(runs,o={}){
+  const pp=`<w:pPr><w:spacing w:before="${o.before||0}" w:after="${o.after??80}"/>${o.ind?`<w:ind w:left="${o.ind}"/>`:''}${o.border?'<w:pBdr><w:bottom w:val="single" w:sz="8" w:space="4" w:color="1AA1EE"/></w:pBdr>':''}</w:pPr>`;
+  return `<w:p>${pp}${runs}</w:p>`;
+}
+function buildDocx(){
+  const lines=buildText().split('\n');let body='';
+  lines.forEach((l,i)=>{
+    if(l==='（完）')return;
+    if(i===0){body+=para(run('紀實短影音腳本',{b:true,sz:36,color:'0B5FAE'}),{after:60})+para(run(l.replace(/^【|】$/g,'').split('｜').join('　｜　'),{sz:20,color:'566B80'}),{after:200});return;}
+    if(!l.trim()){return;}
+    if(l.startsWith('■ ')){body+=para(run(l.slice(2),{b:true,sz:28,color:'0B5FAE'}),{before:280,after:120,border:true});return;}
+    if(l.startsWith('— ')){body+=para(run(l.slice(2),{b:true,sz:23}),{before:140,after:60});return;}
+    const m=l.match(/^(　?)([^：]{1,20})：(.*)$/);
+    if(m){body+=para(run(m[2]+'：',{b:true,color:'3A4F63'})+run(m[3]),{ind:m[1]?360:0});return;}
+    body+=para(run(l),{ind:360});
+  });
+  const doc=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1200" w:right="1200" w:bottom="1200" w:left="1200" w:header="600" w:footer="600" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+  return zip([
+    ['[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>'],
+    ['_rels/.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>'],
+    ['word/document.xml',doc]
+  ]);
+}
+function docName(){
+  const s=v=>String(v||'').trim().replace(/[\\/:*?"<>|\s]+/g,'')||'';
+  return [s($('b_group').value)||'未填組別',s($('b_author').value)||'未填姓名','腳本'].join('_')+'.docx';
+}
+function prepare(){
+  $('parts').hidden=true;$('fallback').hidden=true;
+  if(!validate()){setStatus('必填欄位還沒填完，已標成紅色。',false);return null;}
+  return showEmpty();
+}
+$('wordBtn').addEventListener('click',()=>{
+  const nEmpty=prepare();if(nEmpty===null)return;
+  try{
+    const url=URL.createObjectURL(buildDocx()),a=document.createElement('a');
+    a.href=url;a.download=docName();document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+    setStatus(`已下載「${docName()}」，請把檔案傳到 LINE 給組長`,true);
+  }catch(e){setStatus('這個瀏覽器無法下載檔案，請改用「複製文字」，或用 Safari／Chrome 開啟。',false);}
+});
+const canShare=!!navigator.share;
+if(canShare){$('wayShare').hidden=false;$('dockShare').hidden=false;}
+async function doShare(){
+  const nEmpty=prepare();if(nEmpty===null)return;
+  const name=docName();
+  let file=null;try{file=new File([buildDocx()],name,{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});}catch(e){}
+  try{
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:name});
+    else await navigator.share({title:name.replace('.docx',''),text:buildText()});
+    setStatus(nEmpty?`已分享！還有 ${nEmpty} 區空著，可到最下方查看`:'已分享，記得在 LINE 按送出',true);
+  }catch(e){
+    if(e&&e.name==='AbortError'){setStatus('',true);return;}
+    setStatus('這裡無法分享，請改用「下載 Word 檔」或「複製文字」。',false);
+  }
+}
+$('shareBtn').addEventListener('click',doShare);
+$('dockShare').addEventListener('click',doShare);
 $('copyTsv').addEventListener('click',()=>copy(buildTsv(),'已複製分鏡表，可貼到試算表'));
 $('clearAll').addEventListener('click',e=>{
   const b=e.currentTarget;
